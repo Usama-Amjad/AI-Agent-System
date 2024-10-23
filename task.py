@@ -9,7 +9,8 @@ class TextGenerationTasks:
             1. Leverage domain expertise to provide accurate information
             2. Craft a response that is both precise and insightful
             3. Ensure content is tailored to the specific request
-            4. Combine depth of knowledge with clarity of communication""",
+            4. Combine depth of knowledge with clarity of communication
+            5. If knowledge base tool is provided ,use it to get answers""",
             agent=agent,
             expected_output="""A comprehensive response that:
             1. Demonstrates expertise across relevant domains
@@ -57,7 +58,7 @@ class ResearchGenerationTasks:
 class ImageGenerationTasks:
     def refine_prompt_task(self, agent: Agent, prompt: str):
         return Task(
-            description=f"""Architect a precise visual prompt from: '{prompt}'
+            description=f"""Architect a 30 words precise visual prompt from: '{prompt}'
             
             Requirements:
             1. Translate abstract concepts into clear visual descriptions
@@ -180,9 +181,9 @@ class SoundGenerationTasks:
             4. Is optimized for high-quality sound generation"""
         )
     
-    def sound_generation(self, agent: Agent, duration: int):
+    def sound_generation(self, agent: Agent,sound_prompt: str, duration: int):
         return Task(
-            description=f"""Create sound effect (Duration: {duration}s)
+            description=f"""Produce following sound effect:{sound_prompt} (Duration: {duration}s)
             
             Requirements:
             1. Generate authentic, high-fidelity sound

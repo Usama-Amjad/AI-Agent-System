@@ -7,13 +7,23 @@ from tools.music_tool import MusicGenerationTool
 from tools.sound_tool import SoundGenerationTool
 from tools.dimension_tool import DimensionTool
 from tools.animation_tool import AnimationTool
-from crewai_tools import ScrapeWebsiteTool
+from tools.knowledge_base import KnowledgeBaseTool
+# from crewai_tools import ScrapeWebsiteTool
 from langchain_core.tools import StructuredTool
+# from langchain.llms import Ollama
 
-ollama_llm ="ollama/llama3.1"
+ollama_llm = "ollama/llama3.1"
 
 class TextGenerationAgents:
-    def text_generator(self):
+    def text_generator(self, base:bool=False):
+        tools = [
+            StructuredTool.from_function(
+                name="Knowledge Base Lookup",
+                func=KnowledgeBaseTool().get_knowledge_base_response,
+                description="Look up information in the knowledge base if there is any information related to the query",
+            )
+        ] if base else []
+        
         return Agent(
             role="Language Expert & Knowledge Synthesizer",
             goal="Generate accurate, contextually relevant content optimized for the user's needs",
@@ -21,6 +31,7 @@ class TextGenerationAgents:
             you craft precise, insightful content tailored to each request. Your responses 
             combine depth of knowledge with clarity of communication.""",
             llm=ollama_llm,
+            tools=tools
         )
             
 class ResearchGenerationAgents:
@@ -31,14 +42,20 @@ class ResearchGenerationAgents:
             goal='Uncover and synthesize comprehensive, accurate information efficiently',
             backstory="""You excel at rapid information gathering and verification, 
             with a particular talent for identifying key insights and credible sources.""",
-            tools=[
-                StructuredTool.from_function(
-                    name="Web Searcher and Data Extractor",
-                    func=WebSearcher().search_and_process,
-                    description="Searches web for relevant information and then extract content from URLs for generating answers"
-                ),
-                scrapper
-            ],
+            # # tools=[
+            # #     StructuredTool.from_function(
+            # #         name="Web Searcher and Data Extractor",
+            # #         func=WebSearcher().search_and_process,
+            # #         description="Searches web for relevant information and then extract content from URLs for generating answers"
+            # #     ),
+            # #     StructuredTool.from_function(
+            # #         name= "Knowledge Base Lookup",
+            # #         description= "Look up information in the knowledge base if there is any information related to the query",
+            # #         function= KnowledgeBaseTool().get_knowledge_base_response
+            # #     )
+            # #     ,
+            #     scrapper
+            # ],
             verbose=True,
             allow_delegation=False,
             llm=ollama_llm
@@ -121,7 +138,7 @@ class SoundGenerationAgents:
             backstory="""You specialize in creating authentic soundscapes, 
             understanding both the technical and perceptual aspects of sound design.""",
             llm=ollama_llm,
-            tools=[Tool(
+            tools=[StructuredTool.from_function(
                 name="Sound Generation",
                 func=SoundGenerationTool().sound_generator,
                 description="Creates high-fidelity sound effects"
